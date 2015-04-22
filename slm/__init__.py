@@ -1,8 +1,7 @@
+import numpy as np
 import theano
-
-# Take code from March expts.ipynb
-
-
+import theano.tensor as T
+from theano.gradient import DisconnectedType
 
 class slmOptimisation(object):
     
@@ -18,9 +17,9 @@ class slmOptimisation(object):
         self.A0 = A0
         
         # Set up cost function:
-        self.phi    = theano.shared(value=init_phi.astype(theano.config.floatX),
+        self.phi    = theano.shared(value=initial_phi.astype(theano.config.floatX),
                                     name='phi')
-        self.phi_rate = theano.shared(value=np.zeros_like(init_phi).astype(theano.config.floatX),
+        self.phi_rate = theano.shared(value=np.zeros_like(initial_phi).astype(theano.config.floatX),
                                       name='phi_rate')
         self.S_i = T.matrix('S_i')
         self.S_r = T.matrix('S_r')
@@ -52,6 +51,10 @@ class slmOptimisation(object):
         return self.intensity_calc([self.profile_s_r, self.profile_s_i])
 
 
+def get_centre_range(n):
+    # returns the indices to use given an nxn SLM
+    # e.g. if 8 pixels, then padding to 16 means the centre starts at 4 -> 12  (0 1 2 3   4 5 6 7 8 9 10 11   12 13 14 15)
+    return n/2, n + n/2
 
 
 class InverseFourierOp(theano.Op):
@@ -124,3 +127,5 @@ class FourierOp(theano.Op):
         
         y = InverseFourierOp()(z_r, z_i)
         return y
+    
+fft = FourierOp()

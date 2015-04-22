@@ -36,7 +36,7 @@ class slmOptimisation(object):
         
         # E_out:
         # f = theano.function([xr, xi], FourierOp()(xr, xi))
-        self.E_out_r, self.E_out_i = FourierOp()(self.E_in_r_pad, self.E_in_i_pad)        
+        self.E_out_r, self.E_out_i = fft(self.E_in_r_pad, self.E_in_i_pad)        
         
         # finally, the output intensity:
         #self.E_out_2 = T.pow(self.E_out_r, 2) + T.pow(self.E_out_i, 2)

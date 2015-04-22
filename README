@@ -2,3 +2,9 @@
 -----------
 
 I'm a README file.  Installation instructions to come :)
+
+Requirements: (on Linux..)
+libfftw3-dev
+libzmq-dev
+
+Then can install python modules with pip install -r requirements.txt

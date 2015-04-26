@@ -2,9 +2,9 @@ import numpy as np
 import theano
 import theano.tensor as T
 from theano.gradient import DisconnectedType
-import pyfftw
+#import pyfftw
 
-pyfftw.interfaces.cache.enable()
+#pyfftw.interfaces.cache.enable()
 
 class slmOptimisation(object):
     
@@ -76,8 +76,8 @@ class InverseFourierOp(theano.Op):
         nx, ny = inputs[0].shape
         z_r = output_storage[0]
         z_i = output_storage[1]
-        #s = np.fft.ifft2(x) * (nx*ny)
-        s = pyfftw.interfaces.numpy_fft.ifft2(x) * (nx*ny)
+        s = np.fft.ifft2(x) * (nx*ny)
+        #s = pyfftw.interfaces.numpy_fft.ifft2(x) * (nx*ny)
         z_r[0] = np.real(s)
         z_i[0] = np.imag(s)
 
@@ -97,8 +97,8 @@ class FourierOp(theano.Op):
         x = inputs[0] + 1j*inputs[1]
         z_r = output_storage[0]
         z_i = output_storage[1]
-        # s = np.fft.fft2(x)  # has "1" normalisation
-        s = pyfftw.interfaces.numpy_fft.fft2(x)
+        s = np.fft.fft2(x)  # has "1" normalisation
+        #s = pyfftw.interfaces.numpy_fft.fft2(x)
         z_r[0] = np.real(s)
         z_i[0] = np.imag(s)
         

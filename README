@@ -19,6 +19,7 @@ How to use these files to calculate a phase profile:
 	A few examples are given. 512x512 target arrays are created and saved into initialisation/targetname/
 2) Decide on the initialisation: signal/noise regions/ weighting arrays etc using Regions.ipynb
 	These will (most likely!) be based on the target: load the appropriate target; define regions based on this; save in initialisation/targetname/regionname/ 
+	** The weighting notebook is not particularly neat - this could be organised/arranged better.
 
 
 

@@ -5,6 +5,7 @@
 
 import argparse
 import json
+import yaml
 import sys
 import os
 import numpy as np
@@ -30,10 +31,11 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     # Run the code:
-    params = json.load(args.params)
+    with open(args.params) as f:
+        params = yaml.load(f)
     
     # print header line:
-    print json.dumps(args.__dict__)
+    print json.dumps(params)
     print '--------------------------------'
     print 'cwd: ' + os.getcwd()
     

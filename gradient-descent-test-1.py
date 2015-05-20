@@ -81,9 +81,6 @@ if __name__ == '__main__':
 
     slmOpt = slmOptimisation(target, init_phi, s_profile, A0=1.0/1000) # fudge factor! Need to stabilise this...
     
-    # we now define a cost function to use, squared error for now.
-    cost = T.sum(T.pow((slmOpt.E_out_2 - target)*weighting, 4))
-
     # visualise the output given the initial phi field
     f_E_out = slmOpt.get_E_out()   # these return functions to evaluate the output
     f_E2_out = slmOpt.get_intensity()

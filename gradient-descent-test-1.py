@@ -28,6 +28,9 @@ import theano.tensor as T
 from slm import slmOptimisation
 import pandas as pd
 from pandas import DataFrame
+
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
@@ -42,13 +45,14 @@ if __name__ == '__main__':
         outputdir = 'data/tmp'
     if not os.path.exists(outputdir):
         os.makedirs(outputdir)
+    plotdir = os.path.join(outputdir, 'plots')
+    if not os.path.exists(plotdir):
+        os.makedirs(plotdir)
     
     # print header line:
     print json.dumps(params)
     print '--------------------------------'
     print 'cwd: ' + os.getcwd()
-    
-    #pdb.set_trace()
     
     targetname = os.path.join(params['target'], 'target.dat')
     weightingname = os.path.join(params['target'], params['weighting'], 'weight.dat')
@@ -59,6 +63,10 @@ if __name__ == '__main__':
     weighting_as = np.loadtxt(weightingASname)
 
     N = target.shape[0]/2
+
+    plot_args = {'extent':[0, 2*N, 0, 2*N],
+                 'interpolation':'None',
+                 'origin': 'lower'}
 
     # initialise the phase:
     def initial_phase(N):
@@ -110,16 +118,16 @@ if __name__ == '__main__':
                             on_unused_input='warn')
     print "...done"
 
+    # take a single step
     C = update()
 
     f_cost_SE = theano.function([], cost_SE)
     f_cost_AS = theano.function([], cost_AS_x + cost_AS_y)
-
     f_phi_updates = theano.function([], l_rate*slmOpt.phi_rate)
 
-    #fig, (ax, ax2) = plt.subplots(ncols=2, figsize=(10,10))
+    # prepare for plots
+    fig, (ax, ax2) = plt.subplots(ncols=2, figsize=(10,10))
 
-    # make plots
     E_out = f_E_out()
     E2_out = f_E2_out()
 
@@ -154,7 +162,13 @@ if __name__ == '__main__':
             # make plots
             E_out = f_E_out()
             E2_out = f_E2_out()
-            
+            ax.imshow(E2_out[300:400,300:400], vmin=0, vmax=1, **plot_args)
+            ax.set_title('Intensity');
+            ax2.imshow(E_out[0][300:400,300:400], vmin=-1, vmax=1, **plot_args)
+            ax2.set_title('Re(E)');
+            fig_name = os.path.join(plotdir, str(nn) + '.png')
+            plt.savefig(fig_name)
+                
             # also renormalise the update rate:
             l_rate = np.min([update_rate_target / phi_rate_avg, 1.5*l_rate])  # can go up by 50% at the most.
             phi_rate_avg = 0.0 # reset

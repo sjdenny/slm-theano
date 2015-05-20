@@ -33,14 +33,18 @@ if __name__ == '__main__':
     # Run the code:
     with open(args.params) as f:
         params = yaml.load(f)
+        
+    # output directory:
+    if 'sumatra_label' in params:
+        outputdir = 'data/' + params['sumatra_label']
+    else:
+        outputdir = 'data/tmp'
     
     # print header line:
     print json.dumps(params)
     print '--------------------------------'
     print 'cwd: ' + os.getcwd()
-    
-    sys.exit(2)
-    
+        
     targetname = os.path.join(args.target, 'target.dat')
     weightingname = os.path.join(args.target, args.weighting, 'weight.dat')
     weightingASname = os.path.join(args.target, args.weighting, 'weight_as.dat')
@@ -125,7 +129,7 @@ if __name__ == '__main__':
         if np.mod(n, 10) == 0:
             phi_rate_avg += np.mean(np.abs(f_phi_updates())) * 10./250
         if np.mod(n, 1000) == 0:
-            np.savetxt('data/' + str(nn) + '.dat', slmOpt.phi.get_value(), fmt='%.2f')
+            np.savetxt(outputdir + str(nn) + '.dat', slmOpt.phi.get_value(), fmt='%.2f')
         if np.mod(n, 250) == 0:
             c_SE = float(f_cost_SE())
             c_AS = float(f_cost_AS())

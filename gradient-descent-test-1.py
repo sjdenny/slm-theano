@@ -193,6 +193,6 @@ if __name__ == '__main__':
                     'Cost_QE': l_cost_QE,
                     'Mean_update': l_mean_update,
                     'Max_update': l_max_update})
-    df.to_pickle('summary.pkl')
+    df.to_pickle(os.path.join(outputdir, 'summary.pkl'))
     
     sys.exit()

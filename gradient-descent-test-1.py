@@ -11,12 +11,8 @@ import numpy as np
 
 # parse input arguments:
 parser = argparse.ArgumentParser(description='SLM optimisation routine using gradient descent + momentum.')
-parser.add_argument('target', metavar='target_file',
-                    help='Datafile specifying target to fit')
-parser.add_argument('weighting', metavar='weighting_file',
-                    help='Datafile specifying weighting to use')
-parser.add_argument('n_steps', metavar='n_steps', type=int,
-                    help='(Maximum number of gradient descent steps to take')
+parser.add_argument('params', metavar='parameter_file',
+                    help='Parameters file containing gradient descent values, targets, etc.')
 args = parser.parse_args()
 
 # put theano after args because import is slow.
@@ -34,11 +30,14 @@ import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
     # Run the code:
+    params = json.load(args.params)
     
     # print header line:
     print json.dumps(args.__dict__)
     print '--------------------------------'
     print 'cwd: ' + os.getcwd()
+    
+    sys.exit(2)
     
     targetname = os.path.join(args.target, 'target.dat')
     weightingname = os.path.join(args.target, args.weighting, 'weight.dat')

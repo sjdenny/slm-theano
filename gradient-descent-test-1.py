@@ -94,7 +94,9 @@ if __name__ == '__main__':
 
     l_count = []
     l_cost_SE = []
-    l_cost_AS = []
+    l_cost_QE = []
+    l_mean_update = []
+    l_max_update = []
 
     cost_SE   = T.sum(T.pow((slmOpt.E_out_2 - target)*weighting, 2))
     cost_QE   = T.sum(T.pow((slmOpt.E_out_2 - target)*weighting, 4))
@@ -126,6 +128,7 @@ if __name__ == '__main__':
     C = update()
 
     f_cost_SE = theano.function([], cost_SE)
+    f_cost_QE = theano.function([], cost_QE)
     f_cost_AS = theano.function([], cost_AS_x + cost_AS_y)
     f_phi_updates = theano.function([], l_rate*slmOpt.phi_rate)
 
@@ -140,7 +143,7 @@ if __name__ == '__main__':
     print 'Initial C: {}'.format(C)
     last_C = C
     n = 0
-    for n in range(int(float(params['gradient_descent']['n_steps']))):
+    for n in xrange(params['gradient_descent']['n_steps']):
         # do update step:
         C = update()
         
@@ -150,13 +153,15 @@ if __name__ == '__main__':
             np.savetxt(filename, slmOpt.phi.get_value(), fmt='%.2f')
         if n % output_line_frequency == 0:
             c_SE = float(f_cost_SE())
-            c_AS = float(f_cost_AS())
+            c_QE = float(f_cost_QE())
             l_cost_SE.append(c_SE)
-            l_cost_AS.append(c_AS)
-            print '{step:d} Cost (SE):{cost_SE:.2e}   Cost (AS):{cost_AS:.2e}   Steps: mean:{update_step:.2e} max:{max_update_step:.2e}   l_rate:{l_rate:.2e}'.format(
+            l_cost_QE.append(c_QE)
+            l_mean_update.append(np.mean(np.abs(f_phi_updates())))
+            l_max_update.append(np.max(f_phi_updates()))
+            print '{step:d} Cost (SE):{cost_SE:.2e}   Cost (QE):{cost_QE:.2e}   Steps: mean:{update_step:.2e} max:{max_update_step:.2e}   l_rate:{l_rate:.2e}'.format(
                 step=n,
                 cost_SE=c_SE,
-                cost_AS=c_AS,
+                cost_QE=c_QE,
                 update_step=np.mean(np.abs(f_phi_updates())),
                 max_update_step=np.max(np.abs(f_phi_updates())),
                 l_rate=l_rate
@@ -181,4 +186,13 @@ if __name__ == '__main__':
                                     cost, 
                                     updates=updates,
                                     on_unused_input='warn')
-
+    
+    print 'Finished gradient descent, saving summary.'
+    # create and save the dataframe with the learning curves:
+    df = DataFrame({'Cost_SE': l_cost_SE,
+                    'Cost_QE': l_cost_QE,
+                    'Mean_update': l_mean_update,
+                    'Max_update': l_max_update})
+    df.to_pickle('summary.pkl')
+    
+    sys.exit()

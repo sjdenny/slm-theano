@@ -2,10 +2,10 @@ target:                 initialisation/example_power2_512_(350,350)_64/
 weighting:              weighting_border_16_noise_1e-06
 initialisation:         # initialisation to use (blank for random)
 gradient_descent:
-    n_steps:            50000   # number of gradient descent steps to take
-    update_rate_target: 1e-4    # target mean phase update per step
+    n_steps:            10000   # number of gradient descent steps to take
+    update_rate_target: 3e-3    # target mean phase update per step
     update_frequency:   100     # number of steps between rate adjustments.
-    momentum:           0.95    # momentum decay, 0 -> 1 (around 0.9 ish best)
+    momentum:           0.9     # momentum decay, 0 -> 1 (around 0.9 ish best)
     cost:               squared # squared or quartic for now.
 output_line_frequency:  500     # interval between output plot files
 output_data_frequency:  1000    # interval between output data files

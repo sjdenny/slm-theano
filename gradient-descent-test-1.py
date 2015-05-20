@@ -9,6 +9,7 @@ import yaml
 import sys
 import os
 import numpy as np
+import pdb
 
 # parse input arguments:
 parser = argparse.ArgumentParser(description='SLM optimisation routine using gradient descent + momentum.')
@@ -44,10 +45,12 @@ if __name__ == '__main__':
     print json.dumps(params)
     print '--------------------------------'
     print 'cwd: ' + os.getcwd()
-        
-    targetname = os.path.join(args.target, 'target.dat')
-    weightingname = os.path.join(args.target, args.weighting, 'weight.dat')
-    weightingASname = os.path.join(args.target, args.weighting, 'weight_as.dat')
+    
+    #pdb.set_trace()
+    
+    targetname = os.path.join(params['target'], 'target.dat')
+    weightingname = os.path.join(params['target'], params['weighting'], 'weight.dat')
+    weightingASname = os.path.join(params['target'], params['weighting'], 'weight_as.dat')
 
     target = np.loadtxt(targetname)
     weighting = np.loadtxt(weightingname)
@@ -123,7 +126,7 @@ if __name__ == '__main__':
     print 'Initial C: {}'.format(C)
     last_C = C
     n = 0
-    for n in range(args.n_steps):
+    for n in range(params['gradient_descent']['n_steps']):
         C = update()
         nn += 1
         if np.mod(n, 10) == 0:

@@ -37,9 +37,11 @@ if __name__ == '__main__':
         
     # output directory:
     if 'sumatra_label' in params:
-        outputdir = 'data/' + params['sumatra_label']
+        outputdir = os.path.join('data/', params['sumatra_label'])
     else:
         outputdir = 'data/tmp'
+    if not os.path.exists(outputdir):
+        os.makedirs(outputdir)
     
     # print header line:
     print json.dumps(params)
@@ -132,7 +134,8 @@ if __name__ == '__main__':
         if np.mod(n, 10) == 0:
             phi_rate_avg += np.mean(np.abs(f_phi_updates())) * 10./250
         if np.mod(n, 1000) == 0:
-            np.savetxt(outputdir + str(nn) + '.dat', slmOpt.phi.get_value(), fmt='%.2f')
+            filename = os.path.join(outputdir, str(nn) + '.dat')
+            np.savetxt(filename, slmOpt.phi.get_value(), fmt='%.2f')
         if np.mod(n, 250) == 0:
             c_SE = float(f_cost_SE())
             c_AS = float(f_cost_AS())

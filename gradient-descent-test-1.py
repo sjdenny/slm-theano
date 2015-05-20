@@ -68,14 +68,12 @@ if __name__ == '__main__':
                  'origin': 'lower'}
     
     output_line_frequency = params['output_line_frequency']
+    output_data_frequency = params['output_data_frequency']
 
-    # initialise the phase:
-    def initial_phase(N):
-        """ Return a randomised phase array over [0, 2pi]
-        """
-        return np.random.uniform(low=0, high=2*np.pi, size=(N,N)).astype(theano.config.floatX)
-
-    init_phi = initial_phase(N)
+    if params['initialisation'] is None:
+        init_phi = np.random.uniform(low=0, high=2*np.pi, size=(N,N))
+    else:
+        init_phi = np.loadtxt(params['initialisation'])
 
     # for this example, the profile $S_{nm}$ is uniform.
     s_profile = np.ones_like(init_phi, dtype=complex)  # NB in general s_profile may be complex.

@@ -2,9 +2,31 @@ import numpy as np
 import theano
 import theano.tensor as T
 from theano.gradient import DisconnectedType
-import pyfftw
 
-pyfftw.interfaces.cache.enable()
+try:
+    import pyfftw
+    pyfftw.interfaces.cache.enable()
+    
+    def wrap_fft(*args, **kwargs):
+        fft2 = pyfftw.interfaces.numpy_fft.fft2(threads=8, *args, **kwargs)
+        return fft2
+    
+    def wrap_ifft(*args, **kwargs):
+        ifft2 = pyfftw.interfaces.numpy_fft.ifft2(threads=8, *args, **kwargs)
+        return ifft2
+
+    
+    fft2_call = wrap_fft
+    ifft2_call = wrap_ifft
+    
+    # assert False
+    # pyfftw as implemented fails for currently unknown reasons on the last step?.
+    
+except:
+    fft2_call = np.fft.fft2
+    ifft2_call = np.fft.ifft2
+    print "Warning: using numpy fft implementation."
+
 
 class slmOptimisation(object):
     
@@ -85,7 +107,8 @@ class InverseFourierOp(theano.Op):
         z_r = output_storage[0]
         z_i = output_storage[1]
         #s = np.fft.ifft2(x) * (nx*ny)
-        s = pyfftw.interfaces.numpy_fft.ifft2(x, threads=8) * (nx*ny)
+        #s = pyfftw.interfaces.numpy_fft.ifft2(x, threads=8) * (nx*ny)
+        s = ifft2_call(x) * (nx*ny)
         z_r[0] = np.real(s)
         z_i[0] = np.imag(s)
 
@@ -106,7 +129,8 @@ class FourierOp(theano.Op):
         z_r = output_storage[0]
         z_i = output_storage[1]
         #s = np.fft.fft2(x)  # has "1" normalisation
-        s = pyfftw.interfaces.numpy_fft.fft2(x, threads=8)
+        #s = pyfftw.interfaces.numpy_fft.fft2(x, threads=8)
+        s = fft2_call(x)
         z_r[0] = np.real(s)
         z_i[0] = np.imag(s)
         

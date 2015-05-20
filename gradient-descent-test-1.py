@@ -52,7 +52,6 @@ if __name__ == '__main__':
     # print header line:
     print json.dumps(params)
     print '--------------------------------'
-    print 'cwd: ' + os.getcwd()
     
     targetname = os.path.join(params['target'], 'target.dat')
     weightingname = os.path.join(params['target'], params['weighting'], 'weight.dat')
@@ -67,6 +66,8 @@ if __name__ == '__main__':
     plot_args = {'extent':[0, 2*N, 0, 2*N],
                  'interpolation':'None',
                  'origin': 'lower'}
+    
+    output_line_frequency = params['output_line_frequency']
 
     # initialise the phase:
     def initial_phase(N):
@@ -144,7 +145,7 @@ if __name__ == '__main__':
         if np.mod(n, 1000) == 0:
             filename = os.path.join(outputdir, str(nn) + '.dat')
             np.savetxt(filename, slmOpt.phi.get_value(), fmt='%.2f')
-        if np.mod(n, 250) == 0:
+        if np.mod(n, output_line_frequency) == 0:
             c_SE = float(f_cost_SE())
             c_AS = float(f_cost_AS())
             l_cost_SE.append(c_SE)

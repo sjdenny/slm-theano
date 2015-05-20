@@ -107,7 +107,7 @@ if __name__ == '__main__':
     grad = T.grad(cost, wrt=slmOpt.phi)
 
     l_rate = 0.1   # 'learning rate'
-    momentum = 0.95 # momentum decay
+    momentum = params['gradient_descent']['momentum'] # momentum decay
     updates = ((slmOpt.phi, slmOpt.phi - l_rate * slmOpt.phi_rate),
             (slmOpt.phi_rate, momentum*slmOpt.phi_rate + (1.-momentum)*grad))
 
@@ -131,16 +131,16 @@ if __name__ == '__main__':
     E_out = f_E_out()
     E2_out = f_E2_out()
 
-    update_rate_target = 1e-5
+    update_rate_target = float(params['gradient_descent']['update_rate_target'])
     phi_rate_avg = 0.0
     print 'Initial C: {}'.format(C)
     last_C = C
     n = 0
-    for n in range(params['gradient_descent']['n_steps']):
+    for n in range(int(float(params['gradient_descent']['n_steps']))):
         C = update()
         nn += 1
-        if np.mod(n, 10) == 0:
-            phi_rate_avg += np.mean(np.abs(f_phi_updates())) * 10./250
+        #if np.mod(n, 10) == 0:
+            #phi_rate_avg += np.mean(np.abs(f_phi_updates())) * 10./250
         if np.mod(n, 1000) == 0:
             filename = os.path.join(outputdir, str(nn) + '.dat')
             np.savetxt(filename, slmOpt.phi.get_value(), fmt='%.2f')
@@ -170,8 +170,8 @@ if __name__ == '__main__':
             plt.savefig(fig_name)
                 
             # also renormalise the update rate:
-            l_rate = np.min([update_rate_target / phi_rate_avg, 1.5*l_rate])  # can go up by 50% at the most.
-            phi_rate_avg = 0.0 # reset
+            phi_rate_avg = np.mean(np.abs(f_phi_updates()))
+            l_rate = np.min([update_rate_target / phi_rate_avg, 1.2*l_rate])  # can go up by 20% at the most.
             updates = ((slmOpt.phi, slmOpt.phi - l_rate * slmOpt.phi_rate),
                        (slmOpt.phi_rate, momentum*slmOpt.phi_rate + (1.-momentum)*grad))
             update = theano.function([], 

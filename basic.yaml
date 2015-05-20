@@ -2,4 +2,5 @@ target: initialisation/example_power2_512_(350,350)_64/
 weighting: weighting_border_16_noise_1e-06
 gradient_descent:
     n_steps: 1000
-    
+    update_rate_target: 1e-5
+    momentum: 0.95

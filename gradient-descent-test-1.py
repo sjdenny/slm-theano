@@ -69,6 +69,7 @@ if __name__ == '__main__':
     
     output_line_frequency = params['output_line_frequency']
     output_data_frequency = params['output_data_frequency']
+    update_frequency      = params['gradient_descent']['update_frequency']
 
     if params['initialisation'] is None:
         init_phi = np.random.uniform(low=0, high=2*np.pi, size=(N,N))
@@ -94,21 +95,25 @@ if __name__ == '__main__':
     l_count = []
     l_cost_SE = []
     l_cost_AS = []
-    nn = 0  # global step-counting index
 
-    # new cost function:
     cost_SE   = T.sum(T.pow((slmOpt.E_out_2 - target)*weighting, 2))
     cost_QE   = T.sum(T.pow((slmOpt.E_out_2 - target)*weighting, 4))
     cost_AS_x =  T.sum(T.pow(slmOpt.E_out_2[0:2*N-1,:]-slmOpt.E_out_2[1:2*N,:], 2) * 20*weighting_as[0:2*N-1,:])
     cost_AS_y =  T.sum(T.pow(  slmOpt.E_out_2[:,0:2*N-1]-slmOpt.E_out_2[:,1:2*N], 2) * 20*weighting_as[:,0:2*N-1])
 
-    cost = cost_SE #+ cost_AS_x + cost_AS_y
+    if params['gradient_descent']['cost'] == 'squared':
+        cost = cost_SE
+    elif params['gradient_descent']['cost'] == 'quartic':
+        cost = cost_QE
+    else:
+        assert False, 'Need to specify a valid cost function.'
+        
     grad = T.grad(cost, wrt=slmOpt.phi)
 
     l_rate = 0.1   # 'learning rate'
     momentum = params['gradient_descent']['momentum'] # momentum decay
     updates = ((slmOpt.phi, slmOpt.phi - l_rate * slmOpt.phi_rate),
-            (slmOpt.phi_rate, momentum*slmOpt.phi_rate + (1.-momentum)*grad))
+               (slmOpt.phi_rate, momentum*slmOpt.phi_rate + (1.-momentum)*grad))
 
     print "Compiling update function..."
     update = theano.function([], 
@@ -136,21 +141,20 @@ if __name__ == '__main__':
     last_C = C
     n = 0
     for n in range(int(float(params['gradient_descent']['n_steps']))):
+        # do update step:
         C = update()
-        nn += 1
-        #if np.mod(n, 10) == 0:
-            #phi_rate_avg += np.mean(np.abs(f_phi_updates())) * 10./250
-        if np.mod(n, 1000) == 0:
-            filename = os.path.join(outputdir, str(nn) + '.dat')
+        
+        # do various outputs if needed.
+        if n % output_data_frequency == 0:
+            filename = os.path.join(outputdir, str(n) + '.dat')
             np.savetxt(filename, slmOpt.phi.get_value(), fmt='%.2f')
-        if np.mod(n, output_line_frequency) == 0:
+        if n % output_line_frequency == 0:
             c_SE = float(f_cost_SE())
             c_AS = float(f_cost_AS())
             l_cost_SE.append(c_SE)
             l_cost_AS.append(c_AS)
-            l_count.append(nn)
             print '{step:d} Cost (SE):{cost_SE:.2e}   Cost (AS):{cost_AS:.2e}   Steps: mean:{update_step:.2e} max:{max_update_step:.2e}   l_rate:{l_rate:.2e}'.format(
-                step=nn,
+                step=n,
                 cost_SE=c_SE,
                 cost_AS=c_AS,
                 update_step=np.mean(np.abs(f_phi_updates())),
@@ -158,16 +162,16 @@ if __name__ == '__main__':
                 l_rate=l_rate
             )
             # save the intensity plot:
-            # make plots
             E_out = f_E_out()
             E2_out = f_E2_out()
             ax.imshow(E2_out[300:400,300:400], vmin=0, vmax=1, **plot_args)
             ax.set_title('Intensity');
             ax2.imshow(E_out[0][300:400,300:400], vmin=-1, vmax=1, **plot_args)
             ax2.set_title('Re(E)');
-            fig_name = os.path.join(plotdir, str(nn) + '.png')
+            fig_name = os.path.join(plotdir, '{n:06d}.png'.format(n=n))
             plt.savefig(fig_name)
-                
+            
+        if n % update_frequency == 0:
             # also renormalise the update rate:
             phi_rate_avg = np.mean(np.abs(f_phi_updates()))
             l_rate = np.min([update_rate_target / phi_rate_avg, 1.2*l_rate])  # can go up by 20% at the most.

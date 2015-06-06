@@ -136,6 +136,7 @@ if __name__ == '__main__':
     f_cost_SE = theano.function([], cost_SE)
     f_cost_QE = theano.function([], cost_QE)
     f_cost_AS = theano.function([], cost_AS_x + cost_AS_y)
+    f_cost_phase1 = theano.function([], cost_phase1)
     f_phi_updates = theano.function([], l_rate*slmOpt.phi_rate)
 
     # prepare for plots
@@ -160,14 +161,16 @@ if __name__ == '__main__':
         if n % output_line_frequency == 0:
             c_SE = float(f_cost_SE())
             c_QE = float(f_cost_QE())
+            c_p = float(f_cost_phase1())
             l_cost_SE.append(c_SE)
             l_cost_QE.append(c_QE)
             l_mean_update.append(np.mean(np.abs(f_phi_updates())))
             l_max_update.append(np.max(f_phi_updates()))
-            print '{step:d} Cost (SE):{cost_SE:.2e}   Cost (QE):{cost_QE:.2e}   Steps: mean:{update_step:.2e} max:{max_update_step:.2e}   l_rate:{l_rate:.2e}'.format(
+            print '{step:d} Cost (SE):{cost_SE:.2e}   Cost (phase):{cost_phase:.2e}   Cost (QE):{cost_QE:.2e}   Steps: mean:{update_step:.2e} max:{max_update_step:.2e}   l_rate:{l_rate:.2e}'.format(
                 step=n,
                 cost_SE=c_SE,
                 cost_QE=c_QE,
+                cost_phase=c_p,
                 update_step=np.mean(np.abs(f_phi_updates())),
                 max_update_step=np.max(np.abs(f_phi_updates())),
                 l_rate=l_rate

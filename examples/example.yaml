@@ -1,4 +1,4 @@
-target:                 initialisation/example_power2_512_(350,350)_64/
+target:                 ../initialisation/example_power2_512_(350,350)_64/
 weighting:              weighting_border_16_noise_1e-06
 initialisation:         # initialisation to use (blank for random)
 gradient_descent:

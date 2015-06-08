@@ -1,7 +1,26 @@
 #!/usr/bin/env python
 
-# SJD 19 May 2015
-# Script form of gradient descent with momentum.
+# 
+# 
+
+"""
+SJD 19 May 2015
+Script form of gradient descent with momentum.
+
+To use, run as:
+    python gradient-descent-script.py example.yaml
+where example.yaml contains the run parameters.
+
+At the time of writing, example.yaml contained 50000 iterations.  This isn't enough
+to achieve a good output intensity pattern, but also will take quite a long time to
+run (2 hours on my desktop).  The first 5000 steps are sufficient to see the basic
+pattern forming, and vortices starting to move outwards towards the edges.
+
+Has various features:
+- plots every (currently) 500 steps
+- adjusts step size to prevent update rate slowing
+- contains a few possible cost functions
+"""
 
 import argparse
 import json
@@ -9,7 +28,6 @@ import yaml
 import sys
 import os
 import numpy as np
-import pdb
 
 # parse input arguments:
 parser = argparse.ArgumentParser(description='SLM optimisation routine using gradient descent + momentum.')
@@ -23,6 +41,10 @@ import theano
 if theano.config.floatX == 'float32' or theano.config.device[0:3] == 'gpu':
     print "Using GPU or float32 precision - aborting.  Run python with THEANO_FLAGS=device=cpu, e.g. 'THEANO_FLAGS=device=cpu,floatX=float64 python script.py'"
     sys.exit(1)
+
+# make sure that slm module in on the path:
+if '..' not in sys.path:
+    sys.path.append('..')
 
 import theano.tensor as T
 from slm import slmOptimisation

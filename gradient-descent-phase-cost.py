@@ -118,7 +118,7 @@ if __name__ == '__main__':
         
     grad = T.grad(cost, wrt=slmOpt.phi)
 
-    l_rate = 0.1   # 'learning rate'
+    l_rate = 1e-3   # 'learning rate'
     momentum = params['gradient_descent']['momentum'] # momentum decay
     updates = ((slmOpt.phi, slmOpt.phi - l_rate * slmOpt.phi_rate),
                (slmOpt.phi_rate, momentum*slmOpt.phi_rate + (1.-momentum)*grad))

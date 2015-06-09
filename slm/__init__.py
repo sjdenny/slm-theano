@@ -25,7 +25,7 @@ try:
 except:
     fft2_call = np.fft.fft2
     ifft2_call = np.fft.ifft2
-    print "Warning: using numpy fft implementation."
+    print "Warning: using numpy FFT implementation.  Consider using pyFFTW for faster Fourier transforms."
 
 
 class slmOptimisation(object):
